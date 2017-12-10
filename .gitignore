@@ -1,0 +1,16 @@
+# Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+out
+
+# Ant
+local.properties
+
+# Gradle
+.gradle
+build
+
+# OSX
+.DS_Store
