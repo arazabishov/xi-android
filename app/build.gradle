@@ -1,21 +1,40 @@
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
+
+def tools = rootProject.ext.tools
+def libs = rootProject.ext.libs
+
+def versionMajor = 0
+def versionMinor = 0
+def versionPatch = 0
+def versionBuild = 1
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion tools.sdk
+    buildToolsVersion tools.tools
+
     defaultConfig {
+        minSdkVersion tools.minsdk
+        targetSdkVersion tools.sdk
+
         applicationId "com.abishov.xi"
-        minSdkVersion 19
-        targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+        archivesBaseName = "app-${versionName}-${versionCode}"
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    lintOptions {
+        abortOnError true
+        disable "GoogleAppIndexingWarning"
+        warning "InvalidPackage"
     }
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation "com.android.support:appcompat-v7:${libs.support}"
+
+    testImplementation "junit:junit:${libs.junit}"
+    androidTestImplementation "com.android.support.test:runner:${libs.supporttest}"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:${libs.espresso}"
 }
