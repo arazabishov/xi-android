@@ -29,7 +29,17 @@ android {
 }
 
 dependencies {
+    implementation "com.google.code.gson:gson:${libs.gson}"
+
+    compileOnly "com.jakewharton.auto.value:auto-value-annotations:${libs.autovalueann}"
+    annotationProcessor "com.google.auto.value:auto-value:${libs.autovalue}"
+
+    compileOnly "com.ryanharter.auto.value:auto-value-gson-annotations:${libs.autovaluegson}"
+    annotationProcessor "com.ryanharter.auto.value:auto-value-gson:${libs.autovaluegson}"
+    annotationProcessor "com.ryanharter.auto.value:auto-value-parcel:${libs.autovalueparcel}"
+
     testImplementation "junit:junit:${libs.junit}"
+
     androidTestImplementation "com.android.support.test:runner:${libs.supporttest}"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:${libs.espresso}"
 }
