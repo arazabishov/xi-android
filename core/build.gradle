@@ -37,7 +37,6 @@ dependencies {
 
     compileOnly "com.ryanharter.auto.value:auto-value-gson-annotations:${libs.autovaluegson}"
     annotationProcessor "com.ryanharter.auto.value:auto-value-gson:${libs.autovaluegson}"
-    annotationProcessor "com.ryanharter.auto.value:auto-value-parcel:${libs.autovalueparcel}"
 
     testImplementation "junit:junit:${libs.junit}"
 
