@@ -28,10 +28,14 @@ ext {
     ]
 
     libs = [
-            support    : "27.0.2",
-            supporttest: "1.0.1",
-            timber     : "4.5.1",
-            espresso   : "3.0.1",
-            junit      : "4.12",
+            support      : "27.0.2",
+            supporttest  : "1.0.1",
+            timber       : "4.5.1",
+            espresso     : "3.0.1",
+            junit        : "4.12",
+            gson         : "2.8.1",
+            autovalueann : "1.5",
+            autovalue    : "1.5.1",
+            autovaluegson: "0.6.0",
     ]
 }
