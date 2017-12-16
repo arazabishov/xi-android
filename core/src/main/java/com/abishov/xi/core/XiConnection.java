@@ -51,10 +51,6 @@ public final class XiConnection {
 
   public Completable send(Method method) {
     return Completable.create((emitter) -> {
-      if (writer == null) {
-        throw new IllegalStateException("XiCore is not started correctly.");
-      }
-
       String jsonRpc = gson.toJson(method);
 
       writer.write(jsonRpc);
