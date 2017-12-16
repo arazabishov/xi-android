@@ -29,6 +29,9 @@ android {
 }
 
 dependencies {
+    api "io.reactivex.rxjava2:rxandroid:${libs.rxandroid}"
+    api "io.reactivex.rxjava2:rxjava:${libs.rxjava}"
+
     implementation "com.android.support:support-annotations:${libs.support}"
     implementation "com.google.code.gson:gson:${libs.gson}"
 
