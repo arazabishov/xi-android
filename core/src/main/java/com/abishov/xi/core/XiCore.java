@@ -4,19 +4,15 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.text.TextUtils;
 import android.util.Log;
-import com.abishov.xi.core.rpc.Method;
-import com.abishov.xi.core.rpc.Parameters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.io.BufferedReader;
+import io.reactivex.Single;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +33,6 @@ public final class XiCore {
   );
 
   private final Context context;
-  private final Process process;
   private final Gson gson;
 
   public static XiCore create(Context context) {
@@ -47,53 +42,56 @@ public final class XiCore {
 
   private XiCore(Context context) {
     this.context = context;
-
-    String executableFilePath = copyExecutableToInternalStorage();
-    try {
-      gson = new GsonBuilder()
-          .registerTypeAdapterFactory(XiAdapterFactory.create())
-          .create();
-
-      process = new ProcessBuilder()
-          .command(executableFilePath)
-          .start();
-
-      Log.d(TAG, "Started xi-core process, hooray!");
-
-      Method newView = Method.newView(0, Parameters.create("hello.txt"));
-      String newViewJson = gson.toJson(newView);
-
-      System.out.println("new_view: " + newViewJson);
-
-      BufferedWriter bufferedWriter = new BufferedWriter(
-          new OutputStreamWriter(process.getOutputStream()));
-
-      bufferedWriter.write(newViewJson);
-      bufferedWriter.newLine();
-      bufferedWriter.flush();
-
-      BufferedReader bufferedReader = new BufferedReader(
-          new InputStreamReader(process.getInputStream()));
-
-      while (true) {
-        String output = bufferedReader.readLine();
-        if (!TextUtils.isEmpty(output)) {
-          System.out.println("XiOutput: " + output);
-        }
-      }
-    } catch (IOException ioException) {
-      throw new IllegalStateException("Failed to run xi-core executable: "
-          + executableFilePath, ioException);
-    }
+    this.gson = new GsonBuilder()
+        .registerTypeAdapterFactory(XiAdapterFactory.create())
+        .create();
   }
 
-  private String copyExecutableToInternalStorage() {
+  public Single<XiConnection> connect() {
+    return Single.create(emitter -> {
+      String executableFilePath = getExecutableFilePath();
+      try {
+        if (!isExecutableInInternalStorage()) {
+          copyExecutableToInternalStorage();
+        }
+
+        Process process = new ProcessBuilder()
+            .command(executableFilePath)
+            .start();
+        BufferedWriter bufferedWriter = new BufferedWriter(
+            new OutputStreamWriter(process.getOutputStream()));
+
+        XiConnection xiConnection = new XiConnection(process, bufferedWriter, gson);
+        emitter.onSuccess(xiConnection);
+      } catch (IOException ioException) {
+        Throwable throwable = new IllegalStateException("Failed to run xi-core executable: "
+            + executableFilePath, ioException);
+        emitter.onError(throwable);
+      }
+    });
+  }
+
+  private String getExecutableFilePath() {
+    File xiCoreDirectory = new File(context.getApplicationInfo().dataDir, XI_CORE);
+    File xiCoreExecutable = new File(xiCoreDirectory, XI_CORE);
+
+    return xiCoreExecutable.getAbsolutePath();
+  }
+
+  private boolean isExecutableInInternalStorage() {
+    File xiCoreDirectory = new File(context.getApplicationInfo().dataDir, XI_CORE);
+    File xiCoreExecutable = new File(xiCoreDirectory, XI_CORE);
+
+    return xiCoreDirectory.exists() && xiCoreExecutable.exists();
+  }
+
+  private void copyExecutableToInternalStorage() {
     String executableFilePath = getSupportedArchitecture() + "/" + XI_CORE;
 
     InputStream executableInputStream = null;
     try {
       executableInputStream = context.getAssets().open(executableFilePath);
-      return writeExecutableFile(executableInputStream);
+      writeExecutableFile(executableInputStream);
     } catch (IOException ioException) {
       String exceptionMessage = String.format(Locale.US, "Missing %s executable "
           + "for %s architecture.", XI_CORE, executableFilePath);
@@ -109,7 +107,7 @@ public final class XiCore {
     }
   }
 
-  private String writeExecutableFile(InputStream executableInputStream) {
+  private void writeExecutableFile(InputStream executableInputStream) {
     FileOutputStream executableOutputStream = null;
     try {
       File binDirectory = new File(context.getApplicationInfo().dataDir, XI_CORE);
@@ -144,7 +142,6 @@ public final class XiCore {
         bytesRead = executableInputStream.read(buffer);
       }
 
-      return executableFile.getAbsolutePath();
     } catch (IOException ioException) {
       throw new IllegalStateException(ioException);
     } finally {
