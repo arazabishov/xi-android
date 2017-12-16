@@ -4,11 +4,20 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import android.text.TextUtils;
 import android.util.Log;
+import com.abishov.xi.core.rpc.Method;
+import com.abishov.xi.core.rpc.Parameters;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +38,7 @@ public final class XiCore {
 
   private final Context context;
   private final Process process;
+  private final Gson gson;
 
   public static XiCore create(Context context) {
     Objects.requireNonNull(context);
@@ -40,20 +50,41 @@ public final class XiCore {
 
     String executableFilePath = copyExecutableToInternalStorage();
     try {
+      gson = new GsonBuilder()
+          .registerTypeAdapterFactory(XiAdapterFactory.create())
+          .create();
+
       process = new ProcessBuilder()
           .command(executableFilePath)
           .start();
 
-      process.getInputStream();
-
       Log.d(TAG, "Started xi-core process, hooray!");
+
+      Method newView = Method.newView(0, Parameters.create("hello.txt"));
+      String newViewJson = gson.toJson(newView);
+
+      System.out.println("new_view: " + newViewJson);
+
+      BufferedWriter bufferedWriter = new BufferedWriter(
+          new OutputStreamWriter(process.getOutputStream()));
+
+      bufferedWriter.write(newViewJson);
+      bufferedWriter.newLine();
+      bufferedWriter.flush();
+
+      BufferedReader bufferedReader = new BufferedReader(
+          new InputStreamReader(process.getInputStream()));
+
+      while (true) {
+        String output = bufferedReader.readLine();
+        if (!TextUtils.isEmpty(output)) {
+          System.out.println("XiOutput: " + output);
+        }
+      }
     } catch (IOException ioException) {
       throw new IllegalStateException("Failed to run xi-core executable: "
           + executableFilePath, ioException);
     }
-//    catch (InterruptedException interruptedException) {
-//      throw new IllegalStateException("Failed to start xi-core process.", interruptedException);
-//    }
   }
 
   private String copyExecutableToInternalStorage() {
