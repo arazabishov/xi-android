@@ -39,6 +39,7 @@ android {
 dependencies {
     implementation project(":core")
     implementation "com.android.support:appcompat-v7:${libs.support}"
+    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:${libs.rxbindings}"
 
     testImplementation "junit:junit:${libs.junit}"
     androidTestImplementation "com.android.support.test:runner:${libs.supporttest}"

@@ -38,6 +38,7 @@ ext {
             autovalue    : "1.5.1",
             autovaluegson: "0.6.0",
             rxjava       : "2.1.6",
-            rxandroid    : "2.0.1"
+            rxandroid    : "2.0.1",
+            rxbindings   : "2.0.0",
     ]
 }
