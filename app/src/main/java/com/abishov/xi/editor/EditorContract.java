@@ -1,20 +1,23 @@
 package com.abishov.xi.editor;
 
-import com.abishov.xi.common.ui.Presenter;
-import com.abishov.xi.common.ui.View;
+import com.abishov.xi.core.XiCore;
+import com.abishov.xi.editor.view.SelectionChangedEvent;
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 
-final class EditorContract {
+public final class EditorContract {
 
-  interface EditorView extends View {
+  public interface View extends com.abishov.xi.common.ui.View {
 
-    Observable<CharSequence> textChanges();
+    Observable<SelectionChangedEvent> selectionChangedEvents();
 
     Consumer<CharSequence> render();
   }
 
-  interface EditorPresenter extends Presenter<EditorView> {
+  public interface Presenter extends com.abishov.xi.common.ui.Presenter<View> {
 
+    static Presenter create(XiCore xiCore) {
+      return new EditorPresenter(xiCore);
+    }
   }
 }
