@@ -2,15 +2,14 @@ package com.abishov.xi;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import com.abishov.xi.core.XiConnection;
 import com.abishov.xi.core.XiCore;
-import com.abishov.xi.core.rpc.Method;
-import com.abishov.xi.core.rpc.Parameters;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import com.abishov.xi.editor.EditorContract;
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
+
+  private EditorContract.View editorView;
+  private EditorContract.Presenter editorPresenter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -19,24 +18,28 @@ public class MainActivity extends AppCompatActivity {
 
     XiCore xiCore = XiCore.create(this);
 
-    xiCore.connect()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(consume(), Throwable::printStackTrace);
+    editorView = findViewById(R.id.editorview_main);
+    editorPresenter = EditorContract.Presenter.create(xiCore);
+
+    editorPresenter.attach(editorView);
+
+    // createFile();
   }
 
-  private Consumer<XiConnection> consume() {
-    return connection -> {
-      connection.commands()
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(command -> System.out.println("Command: " + command),
-              Throwable::printStackTrace);
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    editorPresenter.detach();
+  }
 
-      connection.send(Method.newView(0, Parameters.create("hello.txt")))
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .subscribe(() -> System.out.println("Sent an rpc"));
-    };
+  private void createFile() {
+    File file = new File(getFilesDir(), "hello.txt");
+    System.out.println("File path: " + file.getAbsolutePath());
+//    try {
+//      System.out.println("File path: " + file.getAbsolutePath());
+//      // System.out.println("File created: " + file.createNewFile());
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
   }
 }
