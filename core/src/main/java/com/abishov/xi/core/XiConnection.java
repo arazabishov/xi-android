@@ -1,7 +1,7 @@
 package com.abishov.xi.core;
 
 import android.text.TextUtils;
-import com.abishov.xi.core.rpc.Method;
+import com.abishov.xi.core.rpc.Call;
 import com.google.gson.Gson;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -22,14 +22,14 @@ public final class XiConnection {
     this.gson = gson;
   }
 
-  public Observable<String> commands() {
+  public Observable<Call> calls() {
     return Observable.create(emitter -> {
       try (BufferedReader reader = new BufferedReader(
           new InputStreamReader(process.getInputStream()))) {
         while (isXiProcessAlive()) {
           String output = reader.readLine();
           if (!TextUtils.isEmpty(output)) {
-            emitter.onNext(output);
+            emitter.onNext(gson.fromJson(output, Call.class));
           }
         }
 
@@ -49,9 +49,9 @@ public final class XiConnection {
     }
   }
 
-  public Completable send(Method method) {
+  public Completable send(Call call) {
     return Completable.create((emitter) -> {
-      String jsonRpc = gson.toJson(method);
+      String jsonRpc = gson.toJson(call);
 
       writer.write(jsonRpc);
       writer.newLine();
