@@ -2,44 +2,34 @@ package com.abishov.xi;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import com.abishov.xi.core.XiCore;
-import com.abishov.xi.editor.EditorContract;
-import java.io.File;
+import android.text.method.ScrollingMovementMethod;
+import android.widget.TextView;
+import com.abishov.xi.editor.view.EditorView;
 
 public class MainActivity extends AppCompatActivity {
 
-  private EditorContract.View editorView;
-  private EditorContract.Presenter editorPresenter;
+  private TextView editorView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    XiCore xiCore = XiCore.create(this);
-
-    editorView = findViewById(R.id.editorview_main);
-    editorPresenter = EditorContract.Presenter.create(xiCore);
-
-    editorPresenter.attach(editorView);
-
-    // createFile();
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    editorPresenter.detach();
-  }
-
-  private void createFile() {
-    File file = new File(getFilesDir(), "hello.txt");
-    System.out.println("File path: " + file.getAbsolutePath());
-//    try {
-//      System.out.println("File path: " + file.getAbsolutePath());
-//      // System.out.println("File created: " + file.createNewFile());
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
+    editorView = findViewById(R.id.editorview);
+    editorView.setHorizontallyScrolling(true);
+    editorView.setMovementMethod(new ScrollingMovementMethod());
+    editorView.setCursorVisible(true);
+    editorView.setText("This is an example of text rendering on android. This is an example of "
+        + "text rendering on android. This is an example of text rendering on android. "
+        + "text rendering on android. This is an example of text rendering on android. "
+        + "text rendering on android. This is an example of text rendering on android. "
+        + "text rendering on android. This is an example of text rendering on android. "
+        + "text rendering on android. This is an example of text rendering on android. "
+        + "text rendering on android. This is an example of text rendering on android. \n"
+        + "text rendering on android. This is an example of text rendering on android. "
+        + "text rendering on android. This is an example of text rendering on android. "
+        + "text rendering on android. This is an example of text rendering on android. "
+        + "text rendering on android. This is an example of text rendering on android. ");
+    // editorView.setText("This is an example of text rendering on android.");
   }
 }

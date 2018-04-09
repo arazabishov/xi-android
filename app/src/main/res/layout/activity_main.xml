@@ -6,11 +6,10 @@
   android:layout_height="match_parent"
   tools:context="com.abishov.xi.MainActivity">
 
-  <com.abishov.xi.editor.view.EditorView
-    android:id="@+id/editorview_main"
+  <android.support.v7.widget.AppCompatTextView
+    android:id="@+id/editorview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:gravity="top"
-    android:scrollHorizontally="true"/>
+    android:gravity="top"/>
 </FrameLayout>
