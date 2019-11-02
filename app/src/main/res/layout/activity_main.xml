@@ -6,7 +6,7 @@
   android:layout_height="match_parent"
   tools:context="com.abishov.xi.MainActivity">
 
-  <android.support.v7.widget.AppCompatTextView
+  <com.abishov.xi.editor.view.EditorView
     android:id="@+id/editorview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
